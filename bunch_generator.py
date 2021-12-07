@@ -17,7 +17,7 @@ harr = []
 contents = ''
 linesflat = ''
 
-with open('NZ64.xyz', 'r') as fh:
+with open('NZ64.xyz', 'r') as fh: # Replace ZN64.xyz with coordinates of molecule to be instantiated
     lines = fh.readlines()
     for l in lines[2:]:
         linesflat += l
