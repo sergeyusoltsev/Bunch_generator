@@ -3,6 +3,9 @@
 
 import numpy as np
 
+# TODO: ssz and slaboffsetz were initially made for molecules to accomodate hemisphere below the origin,
+# yet currently script is set up to serve for full sphere, hemisphere accomodation should be added as a feature
+
 slaboffsetz = 0 #slab offset in Angstrom
 ss = 10 # slab size x, y, number of point-spheres
 ssz = 10 # slab depth, number of point-spheres
