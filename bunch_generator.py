@@ -34,6 +34,8 @@ for i, j in enumerate(mol.T):
 atoms = np.array(atoms)
 atnames = np.array(atnames)
 
+# TODO: this is not a water instance, rather a molecule instance
+
 def waterinstance(at = 'He', atom = np.array([[0, 0, 0, 1]]), tr=np.identity(4), raz=0, ray=0, rax=0):
     Rz = np.array([[np.cos(raz),     np.sin(raz),    0,  0],
                    [-np.sin(raz),    np.cos(raz),    0,  0],
