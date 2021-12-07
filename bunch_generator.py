@@ -49,9 +49,6 @@ def waterinstance(at = 'He', atom = np.array([[0, 0, 0, 1]]), tr=np.identity(4),
     return ('%s %.6f %.6f %.6f\n' % 
             (at, atom[0], atom[1], atom[2]))
 
-# ccO = np.array([[0., 0., 0., 1]]) # origin
-# ccH1 = np.array([[0.758602, 0., 0.504284, 1]])
-# ccH2 = np.array([[0.758602, 0., -0.504284, 1]])
 # Translation to starting position in cartesian
 tr = np.array([[1,               0,              0,              0],
                [0,               1,              0,              0],
@@ -93,4 +90,4 @@ contents = str(totalatm) + '\n\n' + contents
 with open('slab.xyz', 'w') as fh:
     fh.write(contents)
     
-print('water slab generated successfully')
+print('molecular bunch generated successfully')
