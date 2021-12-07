@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
+import os
 
 # TODO: ssz and slaboffsetz were initially made for molecules to accomodate hemisphere below the origin,
 # yet currently script is set up to serve for full sphere, hemisphere accomodation should be added as a feature
@@ -9,21 +10,24 @@ import numpy as np
 slaboffsetz = 0 #slab offset in Angstrom
 ss = 10 # slab size x, y, number of point-spheres
 ssz = 10 # slab depth, number of point-spheres
-pss = 30 # point size (sphere), Angstrom
-maxrad = 100
+pss = 9 # point size (sphere), Angstrom
+maxrad = 23
 oxarr = []
 harr = []
 
 contents = ''
 linesflat = ''
 
-with open('NZ64.xyz', 'r') as fh: # Replace ZN64.xyz with coordinates of molecule to be instantiated
+path = os.path.abspath(__file__)[:-len(os.path.basename(__file__))]
+sourcename = 'pyrene.xyz'
+
+with open(str(path) + sourcename, 'r') as fh: # Replace ZN64.xyz with coordinates of molecule to be instantiated
     lines = fh.readlines()
     for l in lines[2:]:
         linesflat += l
     # contents += linesflat
 
-mol = np.array(np.genfromtxt('NZ64.xyz', skip_header=2, unpack=True, 
+mol = np.array(np.genfromtxt(str(path) + sourcename, skip_header=2, unpack=True, 
                              dtype=[('name','U5'),('x','<f8'),('y','<f8'),('z','<f8')]))
 atoms = []
 atnames = []
@@ -66,9 +70,9 @@ fragments = 0
 for i in range(ssz):
     for j in range(ss): #y
         for k in range(ss): 
-            rax = np.random.rand()*np.pi
-            ray = np.random.rand()*np.pi
-            raz = np.random.rand()*np.pi#x
+            rax = np.random.rand()*2*np.pi
+            ray = np.random.rand()*2*np.pi
+            raz = np.random.rand()*2*np.pi#x
             contentsbuff = ''
             totalatmbuff = 0
             for n, atom in enumerate(atoms):
@@ -92,7 +96,7 @@ for i in range(1, fragments):
     print('fragment: %i, %i - %i' % (i, totalatm/fragments*(i-1)+1, totalatm/fragments*i))
 
 contents = str(totalatm) + '\n\n' + contents
-with open('slab.xyz', 'w') as fh:
+with open(str(path) + 'slab.xyz', 'w') as fh:
     fh.write(contents)
     
 print('molecular bunch generated successfully')
