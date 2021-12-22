@@ -8,10 +8,10 @@ import os
 # yet currently script is set up to serve for full sphere, hemisphere accomodation should be added as a feature
 
 slaboffsetz = 0 #slab offset in Angstrom
-ss = 10 # slab size x, y, number of point-spheres
-ssz = 10 # slab depth, number of point-spheres
-pss = 4 # point size (sphere), Angstrom
-maxrad = 15
+ss = 20 # slab size x, y, number of point-spheres
+ssz = 20 # slab depth, number of point-spheres
+pss = 5.5 # point size (sphere), Angstrom
+maxrad = 30
 
 # Starting position in cartesian
 
@@ -30,7 +30,7 @@ path = os.path.abspath(__file__)[:-len(os.path.basename(__file__))]
 
 def importxyz(sourcename, path):
     mol = np.array(np.genfromtxt(str(path) + sourcename, skip_header=2, unpack=True, 
-                                 dtype=[('name','U5'),('x','<f8'),('y','<f8'),('z','<f8')]))
+                                 dtype=[('name','U10'),('x','<f8'),('y','<f8'),('z','<f8')]))
     atoms = []
     atnames = []
     for i, j in enumerate(mol.T):
@@ -47,7 +47,7 @@ def generatefromxyz(atoms, atnames, amnt):
     contents = ''
     frag = ''
     for n, atom in enumerate(atoms):
-        contents += instantiate(atnames[n][0], atom)
+        contents += instantiate(atnames[n], atom)
     frag = len(atoms)
     return contents, frag
     
@@ -77,7 +77,7 @@ def instantiate(at = 'He', atom = np.array([[0, 0, 0, 1]])):
 
 # checks if one atom is too close to any in array of atoms
 
-def checkcollision(atom, collider, colliderad = 4):
+def checkcollision(atom, collider, colliderad = 3):
     for i, j in enumerate(collider):
         if np.sqrt((j[0] - atom[0])**2 + (j[1] - atom[1])**2 + (j[2] - atom[2])**2) < colliderad:
             print(np.sqrt((j[0] - atom[0])**2 + (j[1] - atom[1])**2 + (j[2] - atom[2])**2))
@@ -90,14 +90,14 @@ def generateifvalid(atoms, atnames, frag, collider, tr, rax, ray, raz):
     for n, atom in enumerate(atoms):
         current = move(atom, tr, rax, ray, raz)
         if np.linalg.norm(current, ord=2) < maxrad and checkcollision(current, collider):
-            contents += instantiate(atnames[n][0], current)
+            contents += instantiate(atnames[n], current)
         else:
             return False
     return contents, frag
 
 # program starts here
 
-base_atoms, base_atnames, base_amnt = importxyz('pyrene.xyz', path)
+base_atoms, base_atnames, base_amnt = importxyz('molecule.xyz', path)
 
 contents, frag = generatefromxyz(base_atoms, base_atnames, base_amnt)
 glob_fragments.append(str(frag))
