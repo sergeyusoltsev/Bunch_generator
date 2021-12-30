@@ -21,13 +21,13 @@ parser.add_argument('-lr','--lr', metavar='layer radius', type=float, default=15
                     help='layer radius in Angstroem, set huge number to generate sphere of --mr')
 
 args = parser.parse_args()
-molname = args[0]
-solvname = args[1]
-ss = args[2]
-pss = args[3]
-maxrad = args[4]
-colliderad = args[5]
-layerrad = args[6]
+molname = args.mol
+solvname = args.sol
+ss = args.ss
+pss = args.pss
+maxrad = args.mr
+colliderad = args.cr
+layerrad = args.lr
 
 # Starting position in cartesian
 
@@ -172,4 +172,4 @@ glob_contents = str(glob_atom_amnt) + '\n\n' + glob_contents
 with open(str(path) + 'slab.xyz', 'w') as fh:
     fh.write(glob_contents)
     
-print('molecular bunch generated successfully')
+print('Molecular bunch generated successfully')
