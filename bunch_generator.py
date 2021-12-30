@@ -2,23 +2,39 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import os
+import os, argparse
 
-# TODO: ssz and slaboffsetz were initially made for molecules to accomodate hemisphere below the origin,
-# yet currently script is set up to serve for full sphere, hemisphere accomodation should be added as a feature
+parser = argparse.ArgumentParser(description='Generate molecule with solvation environment')
+parser.add_argument('-mol','--mol', metavar='molecule name', type=str, default='molecule.xyz',
+                    help='name of molecule file')
+parser.add_argument('-sol','--sol', metavar='solent name', type=str, default='solvent.xyz',
+                    help='name of solvent file')
+parser.add_argument('-ss','--ss', metavar='slab size', type=float, default=35,
+                    help='slab size in Angstroem')
+parser.add_argument('-pss','--pss', metavar='point size', type=float, default=6.5,
+                    help='size of single molecule occupied space in Angstroem')
+parser.add_argument('-mr','--mr', metavar='max radius', type=float, default=60,
+                    help='cutoff radius in Angstroem')
+parser.add_argument('-cr','--cr', metavar='collide radius', type=float, default=3.5,
+                    help='collide solvent-molecule radius in Angstroem')
+parser.add_argument('-lr','--lr', metavar='layer radius', type=float, default=15,
+                    help='layer radius in Angstroem, set huge number to generate sphere of --mr')
 
-slaboffsetz = 0 #slab offset in Angstrom
-ss = 20 # slab size x, y, number of point-spheres
-ssz = 20 # slab depth, number of point-spheres
-pss = 5.5 # point size (sphere), Angstrom
-maxrad = 30
+args = parser.parse_args()
+molname = args[0]
+solvname = args[1]
+ss = args[2]
+pss = args[3]
+maxrad = args[4]
+colliderad = args[5]
+layerrad = args[6]
 
 # Starting position in cartesian
 
 tr = np.array([[1,               0,              0,              0],
                [0,               1,              0,              0],
                [0,               0,              1,              0],
-               [- ss/2 * pss,    -ss/2 * pss,    -ssz/2 * pss,    1]])
+               [- ss/2 * pss,    -ss/2 * pss,    -ss/2 * pss,    1]])
 
 glob_contents = '' # this is main global we will write to generated xyz file
 glob_fragments = []
@@ -75,21 +91,33 @@ def instantiate(at = 'He', atom = np.array([[0, 0, 0, 1]])):
     return ('%s %.6f %.6f %.6f\n' % 
             (at, atom[0], atom[1], atom[2]))
 
-# checks if one atom is too close to any in array of atoms
+# checks if one atom is too close to any of the atoms of the collider
 
-def checkcollision(atom, collider, colliderad = 3):
+def checkcollision(atom, collider, colliderad):
     for i, j in enumerate(collider):
-        if np.sqrt((j[0] - atom[0])**2 + (j[1] - atom[1])**2 + (j[2] - atom[2])**2) < colliderad:
-            print(np.sqrt((j[0] - atom[0])**2 + (j[1] - atom[1])**2 + (j[2] - atom[2])**2))
+        distance = np.sqrt((j[0] - atom[0])**2 + (j[1] - atom[1])**2 + (j[2] - atom[2])**2)
+        if distance < colliderad:
             return False
     return True
+
+# checks if atom is close enough to any of the atoms of the collider
+
+def checktoofarfrom(atom, collider, layerrad):
+    for i, j in enumerate(collider):
+        distance = np.sqrt((j[0] - atom[0])**2 + (j[1] - atom[1])**2 + (j[2] - atom[2])**2)
+        if distance > layerrad:
+            closenoughflag = False
+        else:
+            closenoughflag = True
+            break
+    return closenoughflag
 
 def generateifvalid(atoms, atnames, frag, collider, tr, rax, ray, raz):
     contents = r''
     frag = frag
     for n, atom in enumerate(atoms):
         current = move(atom, tr, rax, ray, raz)
-        if np.linalg.norm(current, ord=2) < maxrad and checkcollision(current, collider):
+        if np.linalg.norm(current, ord=2) < maxrad and checkcollision(current, collider, colliderad) and checktoofarfrom(current, collider, layerrad):
             contents += instantiate(atnames[n], current)
         else:
             return False
@@ -97,16 +125,16 @@ def generateifvalid(atoms, atnames, frag, collider, tr, rax, ray, raz):
 
 # program starts here
 
-base_atoms, base_atnames, base_amnt = importxyz('molecule.xyz', path)
+base_atoms, base_atnames, base_amnt = importxyz(molname, path)
 
 contents, frag = generatefromxyz(base_atoms, base_atnames, base_amnt)
 glob_fragments.append(str(frag))
 glob_atom_amnt += frag
 glob_contents += contents
 
-surr_atoms, surr_atnames, surr_amnt = importxyz('solvent.xyz', path)
+surr_atoms, surr_atnames, surr_amnt = importxyz(solvname, path)
 
-for i in range(ssz):
+for i in range(ss):
     for j in range(ss): #y
         for k in range(ss): 
 
@@ -130,6 +158,8 @@ for i in range(ssz):
 
     tr[3, 1] = - ss/2 * pss
     tr[3, 2] += pss
+
+print(glob_fragments)
 
 with open(str(path) + '.xcontrol', 'w') as fh:
     counter = 0
