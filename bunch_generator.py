@@ -189,8 +189,8 @@ def runtype_gen(molname, solvname, ss, pss, maxrad, colliderad, layerrad,
     
     print('Molecular bunch of %i atoms generated successfully in slab.xyz, .xcontrol file contains all the fragments' % (glob_atom_amnt))
 
-def runtype_trim(molname, solvname, ss, pss, maxrad, colliderad, layerrad, 
-                 natoms, path, tr, glob_contents, glob_fragments, glob_atom_amnt, solvnatoms):
+def runtype_trim(molname, layerrad, natoms, path, glob_contents, glob_fragments,
+                 glob_atom_amnt, solvnatoms):
     base_atoms, base_atnames, base_amnt = importxyz(molname, path, sliceend = natoms)
     contents, frag = generatefromxyz(base_atoms, base_atnames, base_amnt)
     glob_fragments.append(str(frag))
@@ -237,6 +237,5 @@ if runtype == 'gen':
     runtype_gen(molname, solvname, ss, pss, maxrad, colliderad, layerrad,
                 tr, glob_contents, glob_fragments, glob_atom_amnt, path)
 else:
-    runtype_trim(molname, solvname, ss, pss, maxrad, colliderad, layerrad,
-                 natoms, path, tr, glob_contents, glob_fragments, glob_atom_amnt,
-                 solvnatoms)
+    runtype_trim(molname, layerrad, natoms, path, glob_contents, glob_fragments,
+                 glob_atom_amnt, solvnatoms)
