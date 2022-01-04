@@ -82,20 +82,21 @@ def generatefromxyz(atoms, atnames, amnt):
 # moves single atom around according to translation vector and angles in radians
 
 def move(atom = np.array([[0, 0, 0, 1]]), tr=np.identity(4), raz=0, ray=0, rax=0):
-    Rz = np.array([[np.cos(raz),     np.sin(raz),    0,  0],
-                   [-np.sin(raz),    np.cos(raz),    0,  0],
+    Rz = np.array([[np.cos(raz),     -np.sin(raz),    0,  0],
+                   [np.sin(raz),      np.cos(raz),    0,  0],
                    [0,               0,              1,  0],
                    [0,               0,              0,  1]])
-    Ry = np.array([[-np.sin(ray),    np.cos(ray),    0,  0],
-                   [0,               0,              1,  0],
-                   [np.cos(ray),     np.sin(ray),    0,  0],
+    Ry = np.array([[np.cos(ray),     0,    np.sin(ray),  0],
+                   [0,               1,              0,  0],
+                   [-np.sin(ray),    0,  np.cos(ray),    0],
                    [0,               0,              0,  1]])
-    Rx = np.array([[0,               0,              1,  0],
-                   [np.cos(rax),     np.sin(rax),    0,  0],
-                   [-np.sin(rax),    np.cos(rax),    0,  0],
+    Rx = np.array([[1,               0,              0,  0],
+                   [0,       np.cos(rax),   -np.sin(rax),  0],
+                   [0,      np.sin(rax),    np.cos(rax),  0],
                    [0,               0,              0,  1]])
-    Tr = np.dot(Rz, np.dot(Ry, np.dot(Rx, tr)))
-    return np.dot(atom, Tr)
+    Tr = np.dot(tr.T, np.dot(Ry, np.dot(Rx, Rz)))
+    atomcolumn = np.array([[atom[0], atom[1], atom[2], atom[3]]])
+    return np.dot(Tr, atomcolumn.T)
 
 # returns text form of atom in xyz format
 
