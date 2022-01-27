@@ -149,7 +149,6 @@ def runtype_gen(molname, solvname, ss, pss, maxrad, colliderad, layerrad,
     glob_contents += contents
     
     surr_atoms, surr_atnames, surr_amnt = importxyz(solvname, path)
-    print(surr_atnames)
     for i in range(ss):
         for j in range(ss): #y
             for k in range(ss): 
@@ -194,11 +193,16 @@ def runtype_trim(molname, layerrad, natoms, path, glob_contents, glob_fragments,
                  glob_atom_amnt, solvnatoms):
     base_atoms, base_atnames, base_amnt = importxyz(molname, path, sliceend = natoms)
     contents, frag = generatefromxyz(base_atoms, base_atnames, base_amnt)
+
+    contents_solvonly = glob_contents
+    atom_amnt_solvonly = glob_atom_amnt
+    fragments_solvonly = glob_fragments
+
     glob_fragments.append(str(frag))
     glob_atom_amnt += natoms
     glob_contents += contents
 
-    for i in range(0, 999999):
+    for i in range(0, 9999):
         leaveme = False
         slicebeg=(natoms+i*solvnatoms)
         sliceend=(natoms+(i+1)*solvnatoms)
@@ -214,9 +218,14 @@ def runtype_trim(molname, layerrad, natoms, path, glob_contents, glob_fragments,
                 break
         if leaveme == True:
             contents, frag = generatefromxyz(frag_atoms, frag_atnames, frag_amnt)
+            
             glob_fragments.append(str(frag))
             glob_atom_amnt += frag
             glob_contents += contents
+            
+            fragments_solvonly.append(str(frag))
+            atom_amnt_solvonly += frag
+            contents_solvonly += contents
     
     print(glob_fragments)
     
@@ -230,8 +239,17 @@ def runtype_trim(molname, layerrad, natoms, path, glob_contents, glob_fragments,
     glob_contents = str(glob_atom_amnt) + '\n\n' + glob_contents
     with open(str(path) + 'slabtrimmed.xyz', 'w') as fh:
         fh.write(glob_contents)
+
+    contents_solvonly = str(atom_amnt_solvonly) + '\n\n' + contents_solvonly
+    with open(str(path) + 'slabtrimmed_solvonly.xyz', 'w') as fh:
+        fh.write(contents_solvonly)
+    
+    contents_solvonly = str(atom_amnt_solvonly) + '\n\n' + contents_solvonly
+    with open(str(path) + '.samnt', 'w') as fh:
+        fh.write(int(atom_amnt_solvonly/solvnatoms))
     
     print('Molecular bunch trimmed to %i atoms to slabtrimmed.xyz, .xcontrol file contains all the fragments' % (glob_atom_amnt))
+
     
     
 if runtype == 'gen':
